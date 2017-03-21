@@ -8,7 +8,6 @@ import OpenSolid.Svg as Svg
 import OpenSolid.Geometry.Types exposing (..)
 import OpenSolid.Point3d as Point3d
 import OpenSolid.Direction2d as Direction2d
-import OpenSolid.Axis3d as Axis3d
 import OpenSolid.SketchPlane3d as SketchPlane3d
 import Time exposing (Time)
 import AnimationFrame
@@ -72,8 +71,8 @@ grid time =
 sketchPlane : Time -> SketchPlane3d
 sketchPlane time =
     SketchPlane3d.xy
-        |> SketchPlane3d.rotateAround Axis3d.x (degrees -0.025 * time)
-        |> SketchPlane3d.rotateAround Axis3d.y (degrees 0.05 * time)
+        |> SketchPlane3d.rotateAroundOwn SketchPlane3d.xAxis (degrees -0.025 * time)
+        |> SketchPlane3d.rotateAroundOwn SketchPlane3d.yAxis (degrees 0.05 * time)
 
 
 svgProjection : Time -> List (Svg Msg)
@@ -109,26 +108,15 @@ svgProjection time =
 
 sortByDistanceToPlane : Plane3d -> List Face -> List Face
 sortByDistanceToPlane plane faces =
-    faces
-        |> List.sortWith (compareDistanceToPlane plane)
-
-
-compareDistanceToPlane : Plane3d -> Face -> Face -> Order
-compareDistanceToPlane plane face1 face2 =
     let
         minDistance face =
             face.points
                 |> List.map (Point3d.signedDistanceFrom plane)
                 |> List.minimum
                 |> Maybe.withDefault 0
-
-        d1 =
-            face1 |> minDistance
-
-        d2 =
-            face2 |> minDistance
     in
-        compare d1 d2
+        faces
+            |> List.sortBy minDistance
 
 
 container : ( Float, Float ) -> ( Float, Float ) -> List (Svg Msg) -> Html Msg
