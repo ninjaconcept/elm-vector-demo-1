@@ -2,7 +2,9 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Html)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (style, class)
+import Html.Events
+import Json.Decode as Decode
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Time
@@ -38,50 +40,94 @@ type alias Face =
     }
 
 
-waveFunction : GridCoordinate -> Time -> Float
-waveFunction coord time =
+waveFunction : Int -> GridCoordinate -> Time -> Float
+waveFunction variant coord time =
     let
         r =
             sqrt (coord.x ^ 2 + coord.y ^ 2)
-
-        z =
-            r * pi / 15 * sin (pi / 80 * r + time / 1000)
     in
-    z
+    case variant of
+        1 ->
+            -- Classic expanding ripples
+            20 * sin (r / 12 - time / 300) * (100 / (r + 30))
+
+        2 ->
+            -- X-Y grid waves
+            15 * sin (coord.x / 20 - time / 250) * sin (coord.y / 20 - time / 200)
+
+        3 ->
+            -- Spiral waves
+            let
+                angle = atan2 coord.y coord.x
+            in
+            20 * sin (r / 15 - time / 200 + angle * 3)
+
+        _ ->
+            -- Complex interference (original sophisticated pattern)
+            let
+                -- Primary ripples with amplitude decay
+                primaryRipples =
+                    (200 / (r + 20)) * sin (r / 8 - time / 320)
+
+                -- Secondary interference ripples
+                secondaryRipples =
+                    8 * sin (r / 12 - time / 480) * cos (time / 4000)
+
+                -- Cross interference from multiple sources
+                offset1 = sqrt ((coord.x - 50) ^ 2 + (coord.y - 30) ^ 2)
+                offset2 = sqrt ((coord.x + 40) ^ 2 + (coord.y - 20) ^ 2)
+
+                interference1 = 6 * sin (offset1 / 10 - time / 360) * (80 / (offset1 + 40))
+                interference2 = 4 * sin (offset2 / 8 - time / 440) * (60 / (offset2 + 30))
+            in
+            primaryRipples + secondaryRipples + interference1 + interference2
 
 
-gridElement : GridCoordinate -> Time -> Face
-gridElement coord time =
+gridElement : Int -> GridCoordinate -> Time -> Face
+gridElement variant coord time =
     let
         height =
-            waveFunction coord time
+            waveFunction variant coord time
 
-        colorHue =
-            height / 10
+        -- Animated color offset that cycles through full spectrum over time
+        colorOffset = (time / 5000) - toFloat (floor (time / 5000))
+
+        -- Map height to a larger portion of spectrum (about 2/3)
+        hueFromHeight = (height / 90) * 0.67  -- Use 2/3 of spectrum
+
+        -- Add time-based offset to cycle through full spectrum
+        baseHue = hueFromHeight + colorOffset
+
+        -- Ensure hue stays in 0-1 range
+        hue = baseHue - toFloat (floor baseHue)
+
+        -- Height-based lightness for depth perception
+        lightness =
+            0.3 + (height + 50) / 200
 
         color =
-            Color.hsl colorHue 0.7 0.4
+            Color.hsl hue 0.7 lightness
                 |> Color.toCssString
 
         createPoint : GridCoordinate -> Point3D
         createPoint c =
-            Point3D c.x c.y (waveFunction c time)
+            Point3D c.x c.y (waveFunction variant c time)
 
         points =
-            [ createPoint (GridCoordinate (coord.x - 10) (coord.y - 10))
-            , createPoint (GridCoordinate coord.x (coord.y - 10))
+            [ createPoint (GridCoordinate (coord.x - 8) (coord.y - 8))
+            , createPoint (GridCoordinate coord.x (coord.y - 8))
             , createPoint coord
-            , createPoint (GridCoordinate (coord.x - 10) coord.y)
+            , createPoint (GridCoordinate (coord.x - 8) coord.y)
             ]
     in
     Face points color
 
 
-grid : Time -> List Face
-grid time =
+grid : Int -> Time -> List Face
+grid variant time =
     let
         range =
-            List.range -12 12 |> List.map (toFloat >> (*) 10)
+            List.range -20 20 |> List.map (toFloat >> (*) 8)
 
         coordinates =
             range
@@ -91,7 +137,7 @@ grid time =
                     )
     in
     coordinates
-        |> List.map (\coord -> gridElement coord time)
+        |> List.map (\coord -> gridElement variant coord time)
 
 
 type alias Rotation =
@@ -149,11 +195,19 @@ sortByDistance faces =
         |> List.sortBy averageZ
 
 
-svgProjection : Time -> List (Svg Msg)
-svgProjection time =
+svgProjection : Int -> Model -> List (Svg Msg)
+svgProjection variant model =
     let
+        -- Reduce base rotation when mouse is active
+        hasMouseInput = model.mouseX /= 0 || model.mouseY /= 0
+        baseScale = if hasMouseInput then 0.1 else 1.0
+
+        baseRotX = -0.0003 * model.time * baseScale
+        baseRotY = 0.0006 * model.time * baseScale
+
+        -- Use smoothed current rotation values
         rot =
-            Rotation (-0.002 * time) (0.004 * time)
+            Rotation (baseRotX + model.currentRotX) (baseRotY + model.currentRotY)
 
         draw face =
             let
@@ -176,10 +230,17 @@ svgProjection time =
                 ]
                 []
     in
-    time
-        |> grid
+    model.time
+        |> grid variant
         |> sortByDistance
         |> List.map draw
+
+
+mouseDecoder : Decode.Decoder Msg
+mouseDecoder =
+    Decode.map2 MouseMove
+        (Decode.field "clientX" Decode.float)
+        (Decode.field "clientY" Decode.float)
 
 
 type alias ViewBox =
@@ -215,20 +276,64 @@ view model =
         styles =
             [ style "backgroundColor" "#000000"
             , style "height" "100vh"
+            , style "width" "100vw"
+            , style "display" "grid"
+            , style "grid-template-columns" "repeat(auto-fit, minmax(400px, 1fr))"
+            , style "grid-template-rows" "repeat(auto-fit, minmax(350px, 1fr))"
+            , style "gap" "0"
+            , style "overflow" "hidden"
+            ]
+
+        gridContainerStyle =
+            [ style "width" "100%"
+            , style "height" "100%"
             , style "display" "flex"
             , style "justify-content" "center"
             , style "align-items" "center"
-            , style "flex-wrap" "wrap"
+            , style "min-height" "350px"
             ]
 
+        responsiveCSS =
+            Html.node "style" []
+                [ Html.text """
+                @media (max-width: 768px) {
+                    .grid-container {
+                        grid-template-columns: 1fr !important;
+                        grid-template-rows: repeat(4, minmax(300px, 1fr)) !important;
+                    }
+                }
+                @media (min-width: 769px) and (max-width: 1024px) {
+                    .grid-container {
+                        grid-template-columns: 1fr 1fr !important;
+                        grid-template-rows: 1fr 1fr !important;
+                    }
+                }
+                @media (min-width: 1025px) {
+                    .grid-container {
+                        grid-template-columns: 1fr 1fr !important;
+                        grid-template-rows: 1fr 1fr !important;
+                    }
+                }
+                """
+                ]
+
         svgs =
-            [ 0.25, -0.5, -0.25 ]
-                |> List.map
-                    (\speed ->
-                        container (ViewBox -200 -200 200 200) (svgProjection (speed * model))
-                    )
+            [ Html.div gridContainerStyle [ container (ViewBox -400 -400 400 400) (svgProjection 1 model) ]
+            , Html.div gridContainerStyle [ container (ViewBox -400 -400 400 400) (svgProjection 2 { model | time = model.time * 0.7 }) ]
+            , Html.div gridContainerStyle [ container (ViewBox -400 -400 400 400) (svgProjection 3 { model | time = model.time * 1.3 }) ]
+            , Html.div gridContainerStyle [ container (ViewBox -400 -400 400 400) (svgProjection 4 { model | time = model.time * 1.6 }) ]
+            ]
     in
-    Html.div styles svgs
+    Html.div []
+        [ responsiveCSS
+        , Html.div
+            ([ Html.Events.on "mousemove" mouseDecoder
+             , Html.Events.on "pointermove" mouseDecoder
+             , style "touch-action" "none"
+             , class "grid-container"
+             ] ++ styles)
+            svgs
+        ]
 
 
 main : Program () Model Msg
@@ -245,12 +350,27 @@ main =
 
 
 type alias Model =
-    Float
+    { time : Float
+    , mouseX : Float
+    , mouseY : Float
+    , targetRotX : Float
+    , targetRotY : Float
+    , currentRotX : Float
+    , currentRotY : Float
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( 0, Cmd.none )
+    ( { time = 0
+      , mouseX = 0
+      , mouseY = 0
+      , targetRotX = 0
+      , targetRotY = 0
+      , currentRotX = 0
+      , currentRotY = 0
+      }
+    , Cmd.none )
 
 
 -- UPDATE
@@ -258,13 +378,42 @@ init _ =
 
 type Msg
     = Tick Time.Posix
+    | MouseMove Float Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg _ =
+update msg model =
     case msg of
         Tick newTime ->
-            ( Time.posixToMillis newTime |> toFloat, Cmd.none )
+            let
+                newTimeValue = Time.posixToMillis newTime |> toFloat
+
+                -- Smooth interpolation towards target rotation
+                smoothing = 0.05  -- Lower = smoother, higher = more responsive
+
+                newCurrentRotX = model.currentRotX + (model.targetRotX - model.currentRotX) * smoothing
+                newCurrentRotY = model.currentRotY + (model.targetRotY - model.currentRotY) * smoothing
+            in
+            ( { model
+              | time = newTimeValue
+              , currentRotX = newCurrentRotX
+              , currentRotY = newCurrentRotY
+              }
+            , Cmd.none )
+
+        MouseMove x y ->
+            let
+                -- Calculate target rotation based on mouse position
+                targetRotX = (y - 400) / 400 * 0.8
+                targetRotY = (x - 400) / 400 * 0.8
+            in
+            ( { model
+              | mouseX = x
+              , mouseY = y
+              , targetRotX = targetRotX
+              , targetRotY = targetRotY
+              }
+            , Cmd.none )
 
 
 -- SUBSCRIPTIONS
