@@ -1,3 +1,37 @@
+# OS generated files
 .DS_Store
-elm-stuff
-node_modules
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Elm
+elm-stuff/
+repl-temp-*
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+index.html
+# Allow docs/index.html for GitHub Pages
+!docs/index.html
+
+# Claude Code
+.claude/
+
+# Environment
+.env
+.env.local
