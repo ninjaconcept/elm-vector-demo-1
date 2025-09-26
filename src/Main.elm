@@ -3,6 +3,8 @@ module Main exposing (main)
 import Browser
 import Html exposing (Html)
 import Html.Attributes exposing (style)
+import Html.Events
+import Json.Decode as Decode
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Time
@@ -44,8 +46,32 @@ waveFunction coord time =
         r =
             sqrt (coord.x ^ 2 + coord.y ^ 2)
 
+        -- Primary ripples with amplitude decay
+        primaryRipples =
+            (200 / (r + 20)) * sin (r / 8 - time / 200)
+
+        -- Secondary interference ripples
+        secondaryRipples =
+            8 * sin (r / 12 - time / 300) * cos (time / 2500)
+
+        -- High frequency surface waves with decay
+        surfaceWaves =
+            5 * sin (r / 4 - time / 150) * (100 / (r + 50))
+
+        -- Radial wave modulation (creates wave packets)
+        wavePackets =
+            10 * sin (r / 15 - time / 250) * (1 + 0.5 * sin (r / 25 - time / 500))
+
+        -- Cross interference from multiple sources
+        offset1 = sqrt ((coord.x - 50) ^ 2 + (coord.y - 30) ^ 2)
+        offset2 = sqrt ((coord.x + 40) ^ 2 + (coord.y - 20) ^ 2)
+
+        interference1 = 6 * sin (offset1 / 10 - time / 225) * (80 / (offset1 + 40))
+        interference2 = 4 * sin (offset2 / 8 - time / 275) * (60 / (offset2 + 30))
+
+        -- Combine all wave components
         z =
-            r * pi / 15 * sin (pi / 80 * r + time / 1000)
+            primaryRipples + secondaryRipples + surfaceWaves + wavePackets + interference1 + interference2
     in
     z
 
@@ -56,11 +82,12 @@ gridElement coord time =
         height =
             waveFunction coord time
 
-        colorHue =
-            height / 10
+        -- Subtle blue-to-white gradient based on height
+        lightness =
+            0.3 + (height + 50) / 200  -- Maps height to lightness
 
         color =
-            Color.hsl colorHue 0.7 0.4
+            Color.hsl 0.6 0.3 lightness
                 |> Color.toCssString
 
         createPoint : GridCoordinate -> Point3D
@@ -68,10 +95,10 @@ gridElement coord time =
             Point3D c.x c.y (waveFunction c time)
 
         points =
-            [ createPoint (GridCoordinate (coord.x - 10) (coord.y - 10))
-            , createPoint (GridCoordinate coord.x (coord.y - 10))
+            [ createPoint (GridCoordinate (coord.x - 5) (coord.y - 5))
+            , createPoint (GridCoordinate coord.x (coord.y - 5))
             , createPoint coord
-            , createPoint (GridCoordinate (coord.x - 10) coord.y)
+            , createPoint (GridCoordinate (coord.x - 5) coord.y)
             ]
     in
     Face points color
@@ -81,7 +108,7 @@ grid : Time -> List Face
 grid time =
     let
         range =
-            List.range -12 12 |> List.map (toFloat >> (*) 10)
+            List.range -40 40 |> List.map (toFloat >> (*) 5)
 
         coordinates =
             range
@@ -149,11 +176,22 @@ sortByDistance faces =
         |> List.sortBy averageZ
 
 
-svgProjection : Time -> List (Svg Msg)
-svgProjection time =
+svgProjection : Model -> List (Svg Msg)
+svgProjection model =
     let
+        -- Reduce base rotation when mouse is active
+        hasMouseInput = model.mouseX /= 0 || model.mouseY /= 0
+        baseScale = if hasMouseInput then 0.2 else 1.0
+
+        baseRotX = -0.0003 * model.time * baseScale
+        baseRotY = 0.0006 * model.time * baseScale
+
+        -- Mouse influence (stronger influence, normalized to screen size)
+        mouseInfluenceX = (model.mouseY - 400) / 400 * 0.8
+        mouseInfluenceY = (model.mouseX - 400) / 400 * 0.8
+
         rot =
-            Rotation (-0.002 * time) (0.004 * time)
+            Rotation (baseRotX + mouseInfluenceX) (baseRotY + mouseInfluenceY)
 
         draw face =
             let
@@ -176,10 +214,17 @@ svgProjection time =
                 ]
                 []
     in
-    time
+    model.time
         |> grid
         |> sortByDistance
         |> List.map draw
+
+
+mouseDecoder : Decode.Decoder Msg
+mouseDecoder =
+    Decode.map2 MouseMove
+        (Decode.field "clientX" Decode.float)
+        (Decode.field "clientY" Decode.float)
 
 
 type alias ViewBox =
@@ -222,13 +267,14 @@ view model =
             ]
 
         svgs =
-            [ 0.25, -0.5, -0.25 ]
-                |> List.map
-                    (\speed ->
-                        container (ViewBox -200 -200 200 200) (svgProjection (speed * model))
-                    )
+            [ container (ViewBox -400 -400 400 400) (svgProjection model) ]
     in
-    Html.div styles svgs
+    Html.div
+        ([ Html.Events.on "mousemove" mouseDecoder
+         , Html.Events.on "pointermove" mouseDecoder
+         , style "touch-action" "none"
+         ] ++ styles)
+        svgs
 
 
 main : Program () Model Msg
@@ -245,12 +291,15 @@ main =
 
 
 type alias Model =
-    Float
+    { time : Float
+    , mouseX : Float
+    , mouseY : Float
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( 0, Cmd.none )
+    ( { time = 0, mouseX = 0, mouseY = 0 }, Cmd.none )
 
 
 -- UPDATE
@@ -258,13 +307,17 @@ init _ =
 
 type Msg
     = Tick Time.Posix
+    | MouseMove Float Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg _ =
+update msg model =
     case msg of
         Tick newTime ->
-            ( Time.posixToMillis newTime |> toFloat, Cmd.none )
+            ( { model | time = Time.posixToMillis newTime |> toFloat }, Cmd.none )
+
+        MouseMove x y ->
+            ( { model | mouseX = x, mouseY = y }, Cmd.none )
 
 
 -- SUBSCRIPTIONS
