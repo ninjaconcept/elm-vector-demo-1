@@ -798,11 +798,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.S.C === region.Y.C)
+	if (region.Z.F === region.ae.F)
 	{
-		return 'on line ' + region.S.C;
+		return 'on line ' + region.Z.F;
 	}
-	return 'on lines ' + region.S.C + ' through ' + region.Y.C;
+	return 'on lines ' + region.Z.F + ' through ' + region.ae.F;
 }
 
 
@@ -1875,9 +1875,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aI,
-		impl.aQ,
-		impl.aO,
+		impl.aP,
+		impl.aX,
+		impl.aV,
 		function() { return function() {} }
 	);
 });
@@ -2737,9 +2737,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		q: func(record.q),
-		T: record.T,
-		P: record.P
+		r: func(record.r),
+		_: record._,
+		W: record.W
 	}
 });
 
@@ -3007,11 +3007,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.q;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.T;
+		var message = !tag ? value : tag < 3 ? value.a : value.r;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value._;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.P) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.W) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3961,11 +3961,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aI,
-		impl.aQ,
-		impl.aO,
+		impl.aP,
+		impl.aX,
+		impl.aV,
 		function(sendToApp, initialModel) {
-			var view = impl.aR;
+			var view = impl.aY;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3997,12 +3997,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aI,
-		impl.aQ,
-		impl.aO,
+		impl.aP,
+		impl.aX,
+		impl.aV,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.R && impl.R(sendToApp)
-			var view = impl.aR;
+			var divertHrefToApp = impl.Y && impl.Y(sendToApp)
+			var view = impl.aY;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -4010,12 +4010,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.aA);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.aH);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.aP) && (_VirtualDom_doc.title = title = doc.aP);
+				(title !== doc.aW) && (_VirtualDom_doc.title = title = doc.aW);
 			});
 		}
 	);
@@ -4071,12 +4071,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.aK;
-	var onUrlRequest = impl.aL;
+	var onUrlChange = impl.aR;
+	var onUrlRequest = impl.aS;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		R: function(sendToApp)
+		Y: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4092,9 +4092,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.ao === next.ao
-							&& curr.ab === next.ab
-							&& curr.al.a === next.al.a
+							&& curr.av === next.av
+							&& curr.ai === next.ai
+							&& curr.as.a === next.as.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4102,13 +4102,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		aI: function(flags)
+		aP: function(flags)
 		{
-			return A3(impl.aI, flags, _Browser_getUrl(), key);
+			return A3(impl.aP, flags, _Browser_getUrl(), key);
 		},
-		aR: impl.aR,
-		aQ: impl.aQ,
-		aO: impl.aO
+		aY: impl.aY,
+		aX: impl.aX,
+		aV: impl.aV
 	});
 }
 
@@ -4174,17 +4174,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { aG: 'hidden', aB: 'visibilitychange' }
+		? { aN: 'hidden', aI: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { aG: 'mozHidden', aB: 'mozvisibilitychange' }
+		? { aN: 'mozHidden', aI: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { aG: 'msHidden', aB: 'msvisibilitychange' }
+		? { aN: 'msHidden', aI: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { aG: 'webkitHidden', aB: 'webkitvisibilitychange' }
-		: { aG: 'hidden', aB: 'visibilitychange' };
+		? { aN: 'webkitHidden', aI: 'webkitvisibilitychange' }
+		: { aN: 'hidden', aI: 'visibilitychange' };
 }
 
 
@@ -4265,12 +4265,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		at: _Browser_getScene(),
-		aw: {
-			f: _Browser_window.pageXOffset,
-			g: _Browser_window.pageYOffset,
-			ax: _Browser_doc.documentElement.clientWidth,
-			aa: _Browser_doc.documentElement.clientHeight
+		aA: _Browser_getScene(),
+		aD: {
+			d: _Browser_window.pageXOffset,
+			e: _Browser_window.pageYOffset,
+			aE: _Browser_doc.documentElement.clientWidth,
+			ah: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4280,8 +4280,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		ax: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		aa: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		aE: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		ah: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4304,15 +4304,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			at: {
-				ax: node.scrollWidth,
-				aa: node.scrollHeight
+			aA: {
+				aE: node.scrollWidth,
+				ah: node.scrollHeight
 			},
-			aw: {
-				f: node.scrollLeft,
-				g: node.scrollTop,
-				ax: node.clientWidth,
-				aa: node.clientHeight
+			aD: {
+				d: node.scrollLeft,
+				e: node.scrollTop,
+				aE: node.clientWidth,
+				ah: node.clientHeight
 			}
 		};
 	});
@@ -4342,18 +4342,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			at: _Browser_getScene(),
-			aw: {
-				f: x,
-				g: y,
-				ax: _Browser_doc.documentElement.clientWidth,
-				aa: _Browser_doc.documentElement.clientHeight
-			},
+			aA: _Browser_getScene(),
 			aD: {
-				f: x + rect.left,
-				g: y + rect.top,
-				ax: rect.width,
-				aa: rect.height
+				d: x,
+				e: y,
+				aE: _Browser_doc.documentElement.clientWidth,
+				ah: _Browser_doc.documentElement.clientHeight
+			},
+			aK: {
+				d: x + rect.left,
+				e: y + rect.top,
+				aE: rect.width,
+				ah: rect.height
 			}
 		};
 	});
@@ -4851,7 +4851,7 @@ var $elm$core$Array$builderToArray = F2(
 			var treeLen = builder.a * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.d) : builder.d;
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.f) : builder.f;
 			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.a);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
@@ -4871,7 +4871,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{d: nodeList, a: (len / $elm$core$Array$branchFactor) | 0, c: tail});
+					{f: nodeList, a: (len / $elm$core$Array$branchFactor) | 0, c: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -4938,7 +4938,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {_: fragment, ab: host, aj: path, al: port_, ao: protocol, ap: query};
+		return {ag: fragment, ai: host, aq: path, as: port_, av: protocol, aw: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5220,16 +5220,20 @@ var $elm$browser$Browser$element = _Browser_element;
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2(0, $elm$core$Platform$Cmd$none);
+	return _Utils_Tuple2(
+		{z: 0, A: 0, K: 0, L: 0, N: 0, O: 0, k: 0},
+		$elm$core$Platform$Cmd$none);
 };
-var $author$project$Main$Tick = $elm$core$Basics$identity;
+var $author$project$Main$Tick = function (a) {
+	return {$: 0, a: a};
+};
 var $elm$time$Time$Every = F2(
 	function (a, b) {
 		return {$: 0, a: a, b: b};
 	});
 var $elm$time$Time$State = F2(
 	function (taggers, processes) {
-		return {an: processes, av: taggers};
+		return {au: processes, aC: taggers};
 	});
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: -2};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
@@ -5521,7 +5525,7 @@ var $elm$time$Time$spawnHelp = F3(
 	});
 var $elm$time$Time$onEffects = F3(
 	function (router, subs, _v0) {
-		var processes = _v0.an;
+		var processes = _v0.au;
 		var rightStep = F3(
 			function (_v6, id, _v7) {
 				var spawns = _v7.a;
@@ -5590,7 +5594,7 @@ var $elm$time$Time$millisToPosix = $elm$core$Basics$identity;
 var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
 var $elm$time$Time$onSelfMsg = F3(
 	function (router, interval, state) {
-		var _v0 = A2($elm$core$Dict$get, interval, state.av);
+		var _v0 = A2($elm$core$Dict$get, interval, state.aC);
 		if (_v0.$ === 1) {
 			return $elm$core$Task$succeed(state);
 		} else {
@@ -5637,23 +5641,50 @@ var $elm$time$Time$every = F2(
 			A2($elm$time$Time$Every, interval, tagger));
 	});
 var $author$project$Main$subscriptions = function (_v0) {
-	return A2($elm$time$Time$every, 33, $elm$core$Basics$identity);
+	return A2($elm$time$Time$every, 33, $author$project$Main$Tick);
 };
 var $elm$time$Time$posixToMillis = function (_v0) {
 	var millis = _v0;
 	return millis;
 };
 var $author$project$Main$update = F2(
-	function (msg, _v0) {
-		var newTime = msg;
-		return _Utils_Tuple2(
-			$elm$time$Time$posixToMillis(newTime),
-			$elm$core$Platform$Cmd$none);
+	function (msg, model) {
+		if (!msg.$) {
+			var newTime = msg.a;
+			var smoothing = 0.05;
+			var newTimeValue = $elm$time$Time$posixToMillis(newTime);
+			var newCurrentRotY = model.A + ((model.O - model.A) * smoothing);
+			var newCurrentRotX = model.z + ((model.N - model.z) * smoothing);
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{z: newCurrentRotX, A: newCurrentRotY, k: newTimeValue}),
+				$elm$core$Platform$Cmd$none);
+		} else {
+			var x = msg.a;
+			var y = msg.b;
+			var targetRotY = ((x - 400) / 400) * 0.8;
+			var targetRotX = ((y - 400) / 400) * 0.8;
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{K: x, L: y, N: targetRotX, O: targetRotY}),
+				$elm$core$Platform$Cmd$none);
+		}
 	});
 var $author$project$Main$ViewBox = F4(
 	function (minX, minY, maxX, maxY) {
-		return {af: maxX, ag: maxY, M: minX, N: minY};
+		return {am: maxX, an: maxY, T: minX, U: minY};
 	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
@@ -5663,8 +5694,8 @@ var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $author$project$Main$container = F2(
 	function (vb, svgs) {
-		var width = vb.af - vb.M;
-		var height = vb.ag - vb.N;
+		var width = vb.am - vb.T;
+		var height = vb.an - vb.U;
 		return A2(
 			$elm$html$Html$div,
 			_List_Nil,
@@ -5679,25 +5710,52 @@ var $author$project$Main$container = F2(
 							$elm$svg$Svg$Attributes$height(
 							$elm$core$String$fromFloat(height)),
 							$elm$svg$Svg$Attributes$viewBox(
-							$elm$core$String$fromFloat(vb.M) + (' ' + ($elm$core$String$fromFloat(vb.N) + (' ' + ($elm$core$String$fromFloat(width) + (' ' + $elm$core$String$fromFloat(height)))))))
+							$elm$core$String$fromFloat(vb.T) + (' ' + ($elm$core$String$fromFloat(vb.U) + (' ' + ($elm$core$String$fromFloat(width) + (' ' + $elm$core$String$fromFloat(height)))))))
 						]),
 					svgs)
 				]));
 	});
+var $author$project$Main$MouseMove = F2(
+	function (a, b) {
+		return {$: 1, a: a, b: b};
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $author$project$Main$mouseDecoder = A3(
+	$elm$json$Json$Decode$map2,
+	$author$project$Main$MouseMove,
+	A2($elm$json$Json$Decode$field, 'clientX', $elm$json$Json$Decode$float),
+	A2($elm$json$Json$Decode$field, 'clientY', $elm$json$Json$Decode$float));
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
+var $elm$virtual_dom$VirtualDom$node = function (tag) {
+	return _VirtualDom_node(
+		_VirtualDom_noScript(tag));
+};
+var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $author$project$Main$Rotation = F2(
 	function (x, y) {
-		return {f: x, g: y};
+		return {d: x, e: y};
 	});
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
 var $elm$svg$Svg$Attributes$fillOpacity = _VirtualDom_attribute('fill-opacity');
 var $author$project$Main$GridCoordinate = F2(
 	function (x, y) {
-		return {f: x, g: y};
+		return {d: x, e: y};
 	});
 var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
@@ -5722,11 +5780,11 @@ var $elm$core$List$concatMap = F2(
 	});
 var $author$project$Main$Face = F2(
 	function (points, color) {
-		return {W: color, H: points};
+		return {ac: color, M: points};
 	});
 var $author$project$Main$Point3D = F3(
 	function (x, y, z) {
-		return {f: x, g: y, I: z};
+		return {d: x, e: y, P: z};
 	});
 var $avh4$elm_color$Color$RgbaSpace = F4(
 	function (a, b, c, d) {
@@ -5786,85 +5844,108 @@ var $avh4$elm_color$Color$toCssString = function (_v0) {
 				')'
 			]));
 };
-var $elm$core$Basics$pi = _Basics_pi;
+var $elm$core$Basics$atan2 = _Basics_atan2;
+var $elm$core$Basics$cos = _Basics_cos;
 var $elm$core$Basics$pow = _Basics_pow;
 var $elm$core$Basics$sin = _Basics_sin;
 var $elm$core$Basics$sqrt = _Basics_sqrt;
-var $author$project$Main$waveFunction = F2(
-	function (coord, time) {
+var $author$project$Main$waveFunction = F3(
+	function (variant, coord, time) {
 		var r = $elm$core$Basics$sqrt(
-			A2($elm$core$Basics$pow, coord.f, 2) + A2($elm$core$Basics$pow, coord.g, 2));
-		var z = ((r * $elm$core$Basics$pi) / 15) * $elm$core$Basics$sin((($elm$core$Basics$pi / 80) * r) + (time / 1000));
-		return z;
+			A2($elm$core$Basics$pow, coord.d, 2) + A2($elm$core$Basics$pow, coord.e, 2));
+		switch (variant) {
+			case 1:
+				return (20 * $elm$core$Basics$sin((r / 12) - (time / 300))) * (100 / (r + 30));
+			case 2:
+				return (15 * $elm$core$Basics$sin((coord.d / 20) - (time / 250))) * $elm$core$Basics$sin((coord.e / 20) - (time / 200));
+			case 3:
+				var angle = A2($elm$core$Basics$atan2, coord.e, coord.d);
+				return 20 * $elm$core$Basics$sin(((r / 15) - (time / 200)) + (angle * 3));
+			default:
+				var secondaryRipples = (8 * $elm$core$Basics$sin((r / 12) - (time / 480))) * $elm$core$Basics$cos(time / 4000);
+				var primaryRipples = (200 / (r + 20)) * $elm$core$Basics$sin((r / 8) - (time / 320));
+				var offset2 = $elm$core$Basics$sqrt(
+					A2($elm$core$Basics$pow, coord.d + 40, 2) + A2($elm$core$Basics$pow, coord.e - 20, 2));
+				var offset1 = $elm$core$Basics$sqrt(
+					A2($elm$core$Basics$pow, coord.d - 50, 2) + A2($elm$core$Basics$pow, coord.e - 30, 2));
+				var interference2 = (4 * $elm$core$Basics$sin((offset2 / 8) - (time / 440))) * (60 / (offset2 + 30));
+				var interference1 = (6 * $elm$core$Basics$sin((offset1 / 10) - (time / 360))) * (80 / (offset1 + 40));
+				return ((primaryRipples + secondaryRipples) + interference1) + interference2;
+		}
 	});
-var $author$project$Main$gridElement = F2(
-	function (coord, time) {
-		var height = A2($author$project$Main$waveFunction, coord, time);
+var $author$project$Main$gridElement = F3(
+	function (variant, coord, time) {
+		var height = A3($author$project$Main$waveFunction, variant, coord, time);
+		var hueFromHeight = (height / 90) * 0.67;
+		var lightness = 0.3 + ((height + 50) / 200);
 		var createPoint = function (c) {
 			return A3(
 				$author$project$Main$Point3D,
-				c.f,
-				c.g,
-				A2($author$project$Main$waveFunction, c, time));
+				c.d,
+				c.e,
+				A3($author$project$Main$waveFunction, variant, c, time));
 		};
 		var points = _List_fromArray(
 			[
 				createPoint(
-				A2($author$project$Main$GridCoordinate, coord.f - 10, coord.g - 10)),
+				A2($author$project$Main$GridCoordinate, coord.d - 8, coord.e - 8)),
 				createPoint(
-				A2($author$project$Main$GridCoordinate, coord.f, coord.g - 10)),
+				A2($author$project$Main$GridCoordinate, coord.d, coord.e - 8)),
 				createPoint(coord),
 				createPoint(
-				A2($author$project$Main$GridCoordinate, coord.f - 10, coord.g))
+				A2($author$project$Main$GridCoordinate, coord.d - 8, coord.e))
 			]);
-		var colorHue = height / 10;
+		var colorOffset = (time / 5000) - $elm$core$Basics$floor(time / 5000);
+		var baseHue = hueFromHeight + colorOffset;
+		var hue = baseHue - $elm$core$Basics$floor(baseHue);
 		var color = $avh4$elm_color$Color$toCssString(
-			A3($avh4$elm_color$Color$hsl, colorHue, 0.7, 0.4));
+			A3($avh4$elm_color$Color$hsl, hue, 0.7, lightness));
 		return A2($author$project$Main$Face, points, color);
 	});
-var $author$project$Main$grid = function (time) {
-	var range = A2(
-		$elm$core$List$map,
-		A2(
-			$elm$core$Basics$composeR,
-			$elm$core$Basics$toFloat,
-			$elm$core$Basics$mul(10)),
-		A2($elm$core$List$range, -12, 12));
-	var coordinates = A2(
-		$elm$core$List$concatMap,
-		function (x) {
-			return A2(
-				$elm$core$List$map,
-				function (y) {
-					return A2($author$project$Main$GridCoordinate, x, y);
-				},
-				range);
-		},
-		range);
-	return A2(
-		$elm$core$List$map,
-		function (coord) {
-			return A2($author$project$Main$gridElement, coord, time);
-		},
-		coordinates);
-};
+var $author$project$Main$grid = F2(
+	function (variant, time) {
+		var range = A2(
+			$elm$core$List$map,
+			A2(
+				$elm$core$Basics$composeR,
+				$elm$core$Basics$toFloat,
+				$elm$core$Basics$mul(8)),
+			A2($elm$core$List$range, -20, 20));
+		var coordinates = A2(
+			$elm$core$List$concatMap,
+			function (x) {
+				return A2(
+					$elm$core$List$map,
+					function (y) {
+						return A2($author$project$Main$GridCoordinate, x, y);
+					},
+					range);
+			},
+			range);
+		return A2(
+			$elm$core$List$map,
+			function (coord) {
+				return A3($author$project$Main$gridElement, variant, coord, time);
+			},
+			coordinates);
+	});
+var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$svg$Svg$Attributes$points = _VirtualDom_attribute('points');
 var $elm$svg$Svg$polygon = $elm$svg$Svg$trustedNode('polygon');
 var $author$project$Main$Point2D = F2(
 	function (x, y) {
-		return {f: x, g: y};
+		return {d: x, e: y};
 	});
-var $elm$core$Basics$cos = _Basics_cos;
 var $author$project$Main$project3DTo2D = F2(
 	function (point, rot) {
-		var sinY = $elm$core$Basics$sin(rot.g);
-		var sinX = $elm$core$Basics$sin(rot.f);
-		var cosY = $elm$core$Basics$cos(rot.g);
-		var cosX = $elm$core$Basics$cos(rot.f);
-		var y1 = (point.g * cosX) - (point.I * sinX);
-		var z1 = (point.g * sinX) + (point.I * cosX);
-		var x2 = (point.f * cosY) + (z1 * sinY);
-		var z2 = ((-point.f) * sinY) + (z1 * cosY);
+		var sinY = $elm$core$Basics$sin(rot.e);
+		var sinX = $elm$core$Basics$sin(rot.d);
+		var cosY = $elm$core$Basics$cos(rot.e);
+		var cosX = $elm$core$Basics$cos(rot.d);
+		var y1 = (point.e * cosX) - (point.P * sinX);
+		var z1 = (point.e * sinX) + (point.P * cosX);
+		var x2 = (point.d * cosY) + (z1 * sinY);
+		var z2 = ((-point.d) * sinY) + (z1 * cosY);
 		var perspective = 300 / (300 + z2);
 		return A2($author$project$Main$Point2D, x2 * perspective, y1 * perspective);
 	});
@@ -5875,82 +5956,174 @@ var $elm$core$List$sum = function (numbers) {
 var $author$project$Main$sortByDistance = function (faces) {
 	var averageZ = function (face) {
 		return function (sum) {
-			return sum / $elm$core$List$length(face.H);
+			return sum / $elm$core$List$length(face.M);
 		}(
 			$elm$core$List$sum(
 				A2(
 					$elm$core$List$map,
 					function (p) {
-						return p.I;
+						return p.P;
 					},
-					face.H)));
+					face.M)));
 	};
 	return A2($elm$core$List$sortBy, averageZ, faces);
 };
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeOpacity = _VirtualDom_attribute('stroke-opacity');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var $author$project$Main$svgProjection = function (time) {
-	var rot = A2($author$project$Main$Rotation, (-0.002) * time, 0.004 * time);
-	var draw = function (face) {
-		var projectedPoints = A2(
-			$elm$core$List$map,
-			function (p) {
-				return A2($author$project$Main$project3DTo2D, p, rot);
-			},
-			face.H);
-		var pointsString = A2(
-			$elm$core$String$join,
-			' ',
-			A2(
+var $author$project$Main$svgProjection = F2(
+	function (variant, model) {
+		var hasMouseInput = (!(!model.K)) || (!(!model.L));
+		var baseScale = hasMouseInput ? 0.1 : 1.0;
+		var baseRotY = (0.0006 * model.k) * baseScale;
+		var baseRotX = ((-0.0003) * model.k) * baseScale;
+		var rot = A2($author$project$Main$Rotation, baseRotX + model.z, baseRotY + model.A);
+		var draw = function (face) {
+			var projectedPoints = A2(
 				$elm$core$List$map,
 				function (p) {
-					return $elm$core$String$fromFloat(p.f) + (',' + $elm$core$String$fromFloat(p.g));
+					return A2($author$project$Main$project3DTo2D, p, rot);
 				},
-				projectedPoints));
-		return A2(
-			$elm$svg$Svg$polygon,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$stroke('white'),
-					$elm$svg$Svg$Attributes$strokeWidth('0.5'),
-					$elm$svg$Svg$Attributes$strokeOpacity('0.5'),
-					$elm$svg$Svg$Attributes$fill(face.W),
-					$elm$svg$Svg$Attributes$fillOpacity('0.5'),
-					$elm$svg$Svg$Attributes$points(pointsString)
-				]),
-			_List_Nil);
-	};
-	return A2(
-		$elm$core$List$map,
-		draw,
-		$author$project$Main$sortByDistance(
-			$author$project$Main$grid(time)));
-};
-var $author$project$Main$view = function (model) {
-	var svgs = A2(
-		$elm$core$List$map,
-		function (speed) {
+				face.M);
+			var pointsString = A2(
+				$elm$core$String$join,
+				' ',
+				A2(
+					$elm$core$List$map,
+					function (p) {
+						return $elm$core$String$fromFloat(p.d) + (',' + $elm$core$String$fromFloat(p.e));
+					},
+					projectedPoints));
 			return A2(
-				$author$project$Main$container,
-				A4($author$project$Main$ViewBox, -200, -200, 200, 200),
-				$author$project$Main$svgProjection(speed * model));
-		},
-		_List_fromArray(
-			[0.25, -0.5, -0.25]));
+				$elm$svg$Svg$polygon,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$stroke('white'),
+						$elm$svg$Svg$Attributes$strokeWidth('0.5'),
+						$elm$svg$Svg$Attributes$strokeOpacity('0.5'),
+						$elm$svg$Svg$Attributes$fill(face.ac),
+						$elm$svg$Svg$Attributes$fillOpacity('0.5'),
+						$elm$svg$Svg$Attributes$points(pointsString)
+					]),
+				_List_Nil);
+		};
+		return A2(
+			$elm$core$List$map,
+			draw,
+			$author$project$Main$sortByDistance(
+				A2($author$project$Main$grid, variant, model.k)));
+	});
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Main$view = function (model) {
 	var styles = _List_fromArray(
 		[
 			A2($elm$html$Html$Attributes$style, 'backgroundColor', '#000000'),
 			A2($elm$html$Html$Attributes$style, 'height', '100vh'),
+			A2($elm$html$Html$Attributes$style, 'width', '100vw'),
+			A2($elm$html$Html$Attributes$style, 'display', 'grid'),
+			A2($elm$html$Html$Attributes$style, 'grid-template-columns', 'repeat(auto-fit, minmax(400px, 1fr))'),
+			A2($elm$html$Html$Attributes$style, 'grid-template-rows', 'repeat(auto-fit, minmax(350px, 1fr))'),
+			A2($elm$html$Html$Attributes$style, 'gap', '0'),
+			A2($elm$html$Html$Attributes$style, 'overflow', 'hidden')
+		]);
+	var responsiveCSS = A3(
+		$elm$html$Html$node,
+		'style',
+		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$text('\n                @media (max-width: 768px) {\n                    .grid-container {\n                        grid-template-columns: 1fr !important;\n                        grid-template-rows: repeat(4, minmax(300px, 1fr)) !important;\n                    }\n                }\n                @media (min-width: 769px) and (max-width: 1024px) {\n                    .grid-container {\n                        grid-template-columns: 1fr 1fr !important;\n                        grid-template-rows: 1fr 1fr !important;\n                    }\n                }\n                @media (min-width: 1025px) {\n                    .grid-container {\n                        grid-template-columns: 1fr 1fr !important;\n                        grid-template-rows: 1fr 1fr !important;\n                    }\n                }\n                ')
+			]));
+	var gridContainerStyle = _List_fromArray(
+		[
+			A2($elm$html$Html$Attributes$style, 'width', '100%'),
+			A2($elm$html$Html$Attributes$style, 'height', '100%'),
 			A2($elm$html$Html$Attributes$style, 'display', 'flex'),
 			A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
 			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-			A2($elm$html$Html$Attributes$style, 'flex-wrap', 'wrap')
+			A2($elm$html$Html$Attributes$style, 'min-height', '350px')
 		]);
-	return A2($elm$html$Html$div, styles, svgs);
+	var svgs = _List_fromArray(
+		[
+			A2(
+			$elm$html$Html$div,
+			gridContainerStyle,
+			_List_fromArray(
+				[
+					A2(
+					$author$project$Main$container,
+					A4($author$project$Main$ViewBox, -400, -400, 400, 400),
+					A2($author$project$Main$svgProjection, 1, model))
+				])),
+			A2(
+			$elm$html$Html$div,
+			gridContainerStyle,
+			_List_fromArray(
+				[
+					A2(
+					$author$project$Main$container,
+					A4($author$project$Main$ViewBox, -400, -400, 400, 400),
+					A2(
+						$author$project$Main$svgProjection,
+						2,
+						_Utils_update(
+							model,
+							{k: model.k * 0.7})))
+				])),
+			A2(
+			$elm$html$Html$div,
+			gridContainerStyle,
+			_List_fromArray(
+				[
+					A2(
+					$author$project$Main$container,
+					A4($author$project$Main$ViewBox, -400, -400, 400, 400),
+					A2(
+						$author$project$Main$svgProjection,
+						3,
+						_Utils_update(
+							model,
+							{k: model.k * 1.3})))
+				])),
+			A2(
+			$elm$html$Html$div,
+			gridContainerStyle,
+			_List_fromArray(
+				[
+					A2(
+					$author$project$Main$container,
+					A4($author$project$Main$ViewBox, -400, -400, 400, 400),
+					A2(
+						$author$project$Main$svgProjection,
+						4,
+						_Utils_update(
+							model,
+							{k: model.k * 1.6})))
+				]))
+		]);
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				responsiveCSS,
+				A2(
+				$elm$html$Html$div,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Events$on, 'mousemove', $author$project$Main$mouseDecoder),
+							A2($elm$html$Html$Events$on, 'pointermove', $author$project$Main$mouseDecoder),
+							A2($elm$html$Html$Attributes$style, 'touch-action', 'none'),
+							$elm$html$Html$Attributes$class('grid-container')
+						]),
+					styles),
+				svgs)
+			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
-	{aI: $author$project$Main$init, aO: $author$project$Main$subscriptions, aQ: $author$project$Main$update, aR: $author$project$Main$view});
+	{aP: $author$project$Main$init, aV: $author$project$Main$subscriptions, aX: $author$project$Main$update, aY: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	$elm$json$Json$Decode$succeed(0))(0)}});}(this));
 
