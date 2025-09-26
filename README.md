@@ -2,6 +2,8 @@
 
 A modernized Elm demo showcasing animated 3D grid visualizations with rotating perspectives and wave effects.
 
+[![3D Vector Animation Demo](demo-screenshot.png)](https://ninjaconcept.github.io/elm-vector-demo-1/)
+
 **[🌐 Live Demo](https://ninjaconcept.github.io/elm-vector-demo-1/)**
 
 ## Features
