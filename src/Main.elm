@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Html)
-import Html.Attributes exposing (style, class)
+import Html.Attributes exposing (style)
 import Html.Events
 import Json.Decode as Decode
 import Svg exposing (Svg)
@@ -306,30 +306,6 @@ view model =
             , style "overflow" "hidden"
             ]
 
-        responsiveCSS =
-            Html.node "style" []
-                [ Html.text """
-                @media (max-width: 768px) {
-                    .grid-layout {
-                        grid-template-columns: 1fr !important;
-                        grid-template-rows: 1fr 1fr 1fr 1fr !important;
-                        gap: 1px !important;
-                        padding: 1px !important;
-                        height: 100vh !important;
-                        max-width: 100vw !important;
-                        aspect-ratio: unset !important;
-                    }
-                }
-                @media (min-width: 769px) {
-                    .grid-layout {
-                        grid-template-columns: 1fr 1fr !important;
-                        grid-template-rows: 1fr 1fr !important;
-                        gap: 2px !important;
-                        padding: 2px !important;
-                    }
-                }
-                """
-                ]
 
         svgs =
             [ Html.div gridContainerStyle [ container (ViewBox -400 -400 400 400) (svgProjection 1 model) ]
@@ -337,17 +313,14 @@ view model =
             , Html.div gridContainerStyle [ container (ViewBox -400 -400 400 400) (svgProjection 3 { model | time = model.time * 1.3 }) ]
             , Html.div gridContainerStyle [ container (ViewBox -400 -400 400 400) (svgProjection 4 { model | time = model.time * 1.6 }) ]
             ]
+
     in
     Html.div
         ([ Html.Events.on "mousemove" mouseDecoder
          , Html.Events.on "pointermove" mouseDecoder
          , style "touch-action" "none"
          ] ++ styles)
-        [ responsiveCSS
-        , Html.div
-            (class "grid-layout" :: gridStyles)
-            svgs
-        ]
+        [ Html.div gridStyles svgs ]
 
 
 main : Program () Model Msg

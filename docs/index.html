@@ -5676,15 +5676,6 @@ var $author$project$Main$ViewBox = F4(
 	function (minX, minY, maxX, maxY) {
 		return {am: maxX, an: maxY, T: minX, U: minY};
 	});
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
@@ -5729,11 +5720,6 @@ var $author$project$Main$mouseDecoder = A3(
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
-var $elm$virtual_dom$VirtualDom$node = function (tag) {
-	return _VirtualDom_node(
-		_VirtualDom_noScript(tag));
-};
-var $elm$html$Html$node = $elm$virtual_dom$VirtualDom$node;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 0, a: a};
 };
@@ -6022,8 +6008,6 @@ var $author$project$Main$svgProjection = F2(
 			$author$project$Main$sortByDistance(
 				A2($author$project$Main$grid, variant, model.k)));
 	});
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$view = function (model) {
 	var styles = _List_fromArray(
 		[
@@ -6035,14 +6019,6 @@ var $author$project$Main$view = function (model) {
 			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
 			A2($elm$html$Html$Attributes$style, 'overflow', 'hidden')
 		]);
-	var responsiveCSS = A3(
-		$elm$html$Html$node,
-		'style',
-		_List_Nil,
-		_List_fromArray(
-			[
-				$elm$html$Html$text('\n                @media (max-width: 768px) {\n                    .grid-layout {\n                        grid-template-columns: 1fr !important;\n                        grid-template-rows: 1fr 1fr 1fr 1fr !important;\n                        gap: 1px !important;\n                        padding: 1px !important;\n                        height: 100vh !important;\n                        max-width: 100vw !important;\n                        aspect-ratio: unset !important;\n                    }\n                }\n                @media (min-width: 769px) {\n                    .grid-layout {\n                        grid-template-columns: 1fr 1fr !important;\n                        grid-template-rows: 1fr 1fr !important;\n                        gap: 2px !important;\n                        padding: 2px !important;\n                    }\n                }\n                ')
-			]));
 	var gridStyles = _List_fromArray(
 		[
 			A2($elm$html$Html$Attributes$style, 'display', 'grid'),
@@ -6135,14 +6111,7 @@ var $author$project$Main$view = function (model) {
 			styles),
 		_List_fromArray(
 			[
-				responsiveCSS,
-				A2(
-				$elm$html$Html$div,
-				A2(
-					$elm$core$List$cons,
-					$elm$html$Html$Attributes$class('grid-layout'),
-					gridStyles),
-				svgs)
+				A2($elm$html$Html$div, gridStyles, svgs)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(

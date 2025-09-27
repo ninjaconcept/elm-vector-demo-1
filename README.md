@@ -1,6 +1,6 @@
 # 3D Vector Animations in Elm
 
-A modernized Elm demo showcasing four distinct animated 3D grid visualizations with interactive rotation, diverse wave patterns, and vibrant color spectrums.
+A fun Elm demo exploring what's possible with pure SVG rendering. Features four animated 3D wave grids (5,000+ SVG polygons) with interactive rotation and mathematical wave functions.
 
 [![3D Vector Animation Demo](demo-screenshot.png?v=2)](https://ninjaconcept.github.io/elm-vector-demo-1/)
 
@@ -9,11 +9,11 @@ A modernized Elm demo showcasing four distinct animated 3D grid visualizations w
 ## Features
 
 - **Four unique wave animations**: Classic ripples, X-Y grid waves, spiral patterns, and complex interference
-- **Responsive layout**: Adapts from 2x2 grid on desktop to single column on mobile
-- **Interactive 3D rotation**: Mouse/touch controls with smooth interpolation
-- **Vibrant color mapping**: Enhanced spectrum with dynamic hue cycling
-- **Real-time rendering**: 30fps 3D projection with z-depth sorting
+- **Interactive 3D rotation**: Mouse controls with smooth interpolation
+- **Vibrant color mapping**: Height-based spectrum with dynamic hue cycling
+- **Smooth animation**: Real-time 3D projection with z-depth sorting
 - **Mathematical precision**: Custom wave functions with time-based animation
+- **Pure SVG rendering**: 5,000+ animated polygons testing browser SVG performance
 
 ## Technical Details
 
@@ -69,4 +69,4 @@ This project has been modernized from Elm 0.18 to 0.19.1 with:
 - Custom 3D projection and rotation mathematics
 - Modern Elm Browser.element architecture
 - Updated Time and animation handling
-- Enhanced responsive design and color systems
+- Enhanced color systems
