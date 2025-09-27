@@ -2,7 +2,7 @@
 
 **[🌐 Live Demo](https://ninjaconcept.github.io/elm-vector-demo-1/)**
 
-An interactive demo showcasing four distinct animated 3D grid visualizations with responsive design and vibrant color spectrums.
+A fun demo exploring pure SVG rendering with four animated 3D wave grids (5,000+ polygons) and interactive rotation.
 
 ## Features
 
@@ -10,7 +10,7 @@ An interactive demo showcasing four distinct animated 3D grid visualizations wit
 - **Responsive layout**: Adapts from 2x2 grid on desktop to single column on mobile
 - **Interactive 3D rotation**: Mouse/touch controls with smooth interpolation
 - **Enhanced color mapping**: 67% spectrum range with dynamic hue cycling
-- **Real-time rendering**: 30fps 3D projection with z-depth sorting
+- **Smooth animation**: Real-time 3D projection with z-depth sorting
 
 ## Technical Highlights
 
