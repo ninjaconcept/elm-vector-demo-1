@@ -2,7 +2,7 @@
 
 A modernized Elm demo showcasing four distinct animated 3D grid visualizations with interactive rotation, diverse wave patterns, and vibrant color spectrums.
 
-[![3D Vector Animation Demo](demo-screenshot.png)](https://ninjaconcept.github.io/elm-vector-demo-1/)
+[![3D Vector Animation Demo](demo-screenshot.png?v=2)](https://ninjaconcept.github.io/elm-vector-demo-1/)
 
 **[🌐 Live Demo](https://ninjaconcept.github.io/elm-vector-demo-1/)**
 

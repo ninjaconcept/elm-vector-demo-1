@@ -45,42 +45,48 @@ waveFunction variant coord time =
     let
         r =
             sqrt (coord.x ^ 2 + coord.y ^ 2)
+
+        -- Target range: -25 to +25 for consistent color mapping
+        targetRange = 25.0
+
+        rawHeight =
+            case variant of
+                1 ->
+                    -- Classic expanding ripples
+                    0.75 * sin (r / 12 - time / 500) * (100 / (r + 30))
+
+                2 ->
+                    -- X-Y grid waves
+                    sin (coord.x / 20 - time / 400) * sin (coord.y / 20 - time / 350)
+
+                3 ->
+                    -- Spiral waves
+                    let
+                        angle = atan2 coord.y coord.x
+                    in
+                    0.75 * sin (r / 15 - time / 700 + angle * 3)
+
+                _ ->
+                    -- Complex interference (original sophisticated pattern)
+                    let
+                        -- Primary ripples with amplitude decay
+                        primaryRipples =
+                            (15 / (r + 20)) * sin (r / 8 - time / 550)
+
+                        -- Secondary interference ripples
+                        secondaryRipples =
+                            0.5 * sin (r / 12 - time / 800) * cos (time / 6000)
+
+                        -- Cross interference from multiple sources
+                        offset1 = sqrt ((coord.x - 50) ^ 2 + (coord.y - 30) ^ 2)
+                        offset2 = sqrt ((coord.x + 40) ^ 2 + (coord.y - 20) ^ 2)
+
+                        interference1 = 0.3 * sin (offset1 / 10 - time / 600) * (5 / (offset1 + 40))
+                        interference2 = 0.25 * sin (offset2 / 8 - time / 700) * (4 / (offset2 + 30))
+                    in
+                    primaryRipples + secondaryRipples + interference1 + interference2
     in
-    case variant of
-        1 ->
-            -- Classic expanding ripples
-            20 * sin (r / 12 - time / 300) * (100 / (r + 30))
-
-        2 ->
-            -- X-Y grid waves
-            15 * sin (coord.x / 20 - time / 250) * sin (coord.y / 20 - time / 200)
-
-        3 ->
-            -- Spiral waves
-            let
-                angle = atan2 coord.y coord.x
-            in
-            20 * sin (r / 15 - time / 200 + angle * 3)
-
-        _ ->
-            -- Complex interference (original sophisticated pattern)
-            let
-                -- Primary ripples with amplitude decay
-                primaryRipples =
-                    (200 / (r + 20)) * sin (r / 8 - time / 320)
-
-                -- Secondary interference ripples
-                secondaryRipples =
-                    8 * sin (r / 12 - time / 480) * cos (time / 4000)
-
-                -- Cross interference from multiple sources
-                offset1 = sqrt ((coord.x - 50) ^ 2 + (coord.y - 30) ^ 2)
-                offset2 = sqrt ((coord.x + 40) ^ 2 + (coord.y - 20) ^ 2)
-
-                interference1 = 6 * sin (offset1 / 10 - time / 360) * (80 / (offset1 + 40))
-                interference2 = 4 * sin (offset2 / 8 - time / 440) * (60 / (offset2 + 30))
-            in
-            primaryRipples + secondaryRipples + interference1 + interference2
+    rawHeight * targetRange
 
 
 gridElement : Int -> GridCoordinate -> Time -> Face
@@ -89,21 +95,16 @@ gridElement variant coord time =
         height =
             waveFunction variant coord time
 
-        -- Animated color offset that cycles through full spectrum over time
-        colorOffset = (time / 5000) - toFloat (floor (time / 5000))
+        -- Map height directly to full spectrum (0-1 hue range)
+        -- Normalize height from consistent wave range (-25 to +25) to 0-1
+        normalizedHeight = (height + 25) / 50
 
-        -- Map height to a larger portion of spectrum (about 2/3)
-        hueFromHeight = (height / 90) * 0.67  -- Use 2/3 of spectrum
-
-        -- Add time-based offset to cycle through full spectrum
-        baseHue = hueFromHeight + colorOffset
-
-        -- Ensure hue stays in 0-1 range
-        hue = baseHue - toFloat (floor baseHue)
+        -- Clamp to 0-1 range and map to full spectrum
+        hue = max 0 (min 1 normalizedHeight)
 
         -- Height-based lightness for depth perception
         lightness =
-            0.3 + (height + 50) / 200
+            0.35 + (height + 25) / 280
 
         color =
             Color.hsl hue 0.7 lightness
@@ -114,10 +115,10 @@ gridElement variant coord time =
             Point3D c.x c.y (waveFunction variant c time)
 
         points =
-            [ createPoint (GridCoordinate (coord.x - 8) (coord.y - 8))
-            , createPoint (GridCoordinate coord.x (coord.y - 8))
+            [ createPoint (GridCoordinate (coord.x - 7) (coord.y - 7))
+            , createPoint (GridCoordinate coord.x (coord.y - 7))
             , createPoint coord
-            , createPoint (GridCoordinate (coord.x - 8) coord.y)
+            , createPoint (GridCoordinate (coord.x - 7) coord.y)
             ]
     in
     Face points color
@@ -127,7 +128,7 @@ grid : Int -> Time -> List Face
 grid variant time =
     let
         range =
-            List.range -20 20 |> List.map (toFloat >> (*) 8)
+            List.range -18 18 |> List.map (toFloat >> (*) 7)
 
         coordinates =
             range
@@ -221,11 +222,11 @@ svgProjection variant model =
                         |> String.join " "
             in
             Svg.polygon
-                [ SvgAttr.stroke "white"
-                , SvgAttr.strokeWidth "0.5"
-                , SvgAttr.strokeOpacity "0.5"
+                [ SvgAttr.stroke "#000000"
+                , SvgAttr.strokeWidth "0.7"
+                , SvgAttr.strokeOpacity "0.4"
                 , SvgAttr.fill face.color
-                , SvgAttr.fillOpacity "0.5"
+                , SvgAttr.fillOpacity "0.8"
                 , SvgAttr.points pointsString
                 ]
                 []
@@ -277,11 +278,23 @@ view model =
             [ style "backgroundColor" "#000000"
             , style "height" "100vh"
             , style "width" "100vw"
-            , style "display" "grid"
-            , style "grid-template-columns" "repeat(auto-fit, minmax(400px, 1fr))"
-            , style "grid-template-rows" "repeat(auto-fit, minmax(350px, 1fr))"
-            , style "gap" "0"
+            , style "display" "flex"
+            , style "justify-content" "center"
+            , style "align-items" "center"
             , style "overflow" "hidden"
+            ]
+
+        gridStyles =
+            [ style "display" "grid"
+            , style "grid-template-columns" "1fr 1fr"
+            , style "grid-template-rows" "1fr 1fr"
+            , style "gap" "2px"
+            , style "padding" "2px"
+            , style "box-sizing" "border-box"
+            , style "max-width" "1200px"
+            , style "width" "100%"
+            , style "height" "min(100vh, 800px)"
+            , style "aspect-ratio" "1.5"
             ]
 
         gridContainerStyle =
@@ -290,28 +303,29 @@ view model =
             , style "display" "flex"
             , style "justify-content" "center"
             , style "align-items" "center"
-            , style "min-height" "350px"
+            , style "overflow" "hidden"
             ]
 
         responsiveCSS =
             Html.node "style" []
                 [ Html.text """
                 @media (max-width: 768px) {
-                    .grid-container {
+                    .grid-layout {
                         grid-template-columns: 1fr !important;
-                        grid-template-rows: repeat(4, minmax(300px, 1fr)) !important;
+                        grid-template-rows: 1fr 1fr 1fr 1fr !important;
+                        gap: 1px !important;
+                        padding: 1px !important;
+                        height: 100vh !important;
+                        max-width: 100vw !important;
+                        aspect-ratio: unset !important;
                     }
                 }
-                @media (min-width: 769px) and (max-width: 1024px) {
-                    .grid-container {
+                @media (min-width: 769px) {
+                    .grid-layout {
                         grid-template-columns: 1fr 1fr !important;
                         grid-template-rows: 1fr 1fr !important;
-                    }
-                }
-                @media (min-width: 1025px) {
-                    .grid-container {
-                        grid-template-columns: 1fr 1fr !important;
-                        grid-template-rows: 1fr 1fr !important;
+                        gap: 2px !important;
+                        padding: 2px !important;
                     }
                 }
                 """
@@ -324,14 +338,14 @@ view model =
             , Html.div gridContainerStyle [ container (ViewBox -400 -400 400 400) (svgProjection 4 { model | time = model.time * 1.6 }) ]
             ]
     in
-    Html.div []
+    Html.div
+        ([ Html.Events.on "mousemove" mouseDecoder
+         , Html.Events.on "pointermove" mouseDecoder
+         , style "touch-action" "none"
+         ] ++ styles)
         [ responsiveCSS
         , Html.div
-            ([ Html.Events.on "mousemove" mouseDecoder
-             , Html.Events.on "pointermove" mouseDecoder
-             , style "touch-action" "none"
-             , class "grid-container"
-             ] ++ styles)
+            (class "grid-layout" :: gridStyles)
             svgs
         ]
 

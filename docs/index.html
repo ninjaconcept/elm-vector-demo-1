@@ -5811,6 +5811,10 @@ var $avh4$elm_color$Color$hsl = F3(
 	function (h, s, l) {
 		return A4($avh4$elm_color$Color$hsla, h, s, l, 1.0);
 	});
+var $elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
 var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
 };
@@ -5851,33 +5855,41 @@ var $elm$core$Basics$sin = _Basics_sin;
 var $elm$core$Basics$sqrt = _Basics_sqrt;
 var $author$project$Main$waveFunction = F3(
 	function (variant, coord, time) {
+		var targetRange = 25.0;
 		var r = $elm$core$Basics$sqrt(
 			A2($elm$core$Basics$pow, coord.d, 2) + A2($elm$core$Basics$pow, coord.e, 2));
-		switch (variant) {
-			case 1:
-				return (20 * $elm$core$Basics$sin((r / 12) - (time / 300))) * (100 / (r + 30));
-			case 2:
-				return (15 * $elm$core$Basics$sin((coord.d / 20) - (time / 250))) * $elm$core$Basics$sin((coord.e / 20) - (time / 200));
-			case 3:
-				var angle = A2($elm$core$Basics$atan2, coord.e, coord.d);
-				return 20 * $elm$core$Basics$sin(((r / 15) - (time / 200)) + (angle * 3));
-			default:
-				var secondaryRipples = (8 * $elm$core$Basics$sin((r / 12) - (time / 480))) * $elm$core$Basics$cos(time / 4000);
-				var primaryRipples = (200 / (r + 20)) * $elm$core$Basics$sin((r / 8) - (time / 320));
-				var offset2 = $elm$core$Basics$sqrt(
-					A2($elm$core$Basics$pow, coord.d + 40, 2) + A2($elm$core$Basics$pow, coord.e - 20, 2));
-				var offset1 = $elm$core$Basics$sqrt(
-					A2($elm$core$Basics$pow, coord.d - 50, 2) + A2($elm$core$Basics$pow, coord.e - 30, 2));
-				var interference2 = (4 * $elm$core$Basics$sin((offset2 / 8) - (time / 440))) * (60 / (offset2 + 30));
-				var interference1 = (6 * $elm$core$Basics$sin((offset1 / 10) - (time / 360))) * (80 / (offset1 + 40));
-				return ((primaryRipples + secondaryRipples) + interference1) + interference2;
-		}
+		var rawHeight = function () {
+			switch (variant) {
+				case 1:
+					return (0.75 * $elm$core$Basics$sin((r / 12) - (time / 500))) * (100 / (r + 30));
+				case 2:
+					return $elm$core$Basics$sin((coord.d / 20) - (time / 400)) * $elm$core$Basics$sin((coord.e / 20) - (time / 350));
+				case 3:
+					var angle = A2($elm$core$Basics$atan2, coord.e, coord.d);
+					return 0.75 * $elm$core$Basics$sin(((r / 15) - (time / 700)) + (angle * 3));
+				default:
+					var secondaryRipples = (0.5 * $elm$core$Basics$sin((r / 12) - (time / 800))) * $elm$core$Basics$cos(time / 6000);
+					var primaryRipples = (15 / (r + 20)) * $elm$core$Basics$sin((r / 8) - (time / 550));
+					var offset2 = $elm$core$Basics$sqrt(
+						A2($elm$core$Basics$pow, coord.d + 40, 2) + A2($elm$core$Basics$pow, coord.e - 20, 2));
+					var offset1 = $elm$core$Basics$sqrt(
+						A2($elm$core$Basics$pow, coord.d - 50, 2) + A2($elm$core$Basics$pow, coord.e - 30, 2));
+					var interference2 = (0.25 * $elm$core$Basics$sin((offset2 / 8) - (time / 700))) * (4 / (offset2 + 30));
+					var interference1 = (0.3 * $elm$core$Basics$sin((offset1 / 10) - (time / 600))) * (5 / (offset1 + 40));
+					return ((primaryRipples + secondaryRipples) + interference1) + interference2;
+			}
+		}();
+		return rawHeight * targetRange;
 	});
 var $author$project$Main$gridElement = F3(
 	function (variant, coord, time) {
 		var height = A3($author$project$Main$waveFunction, variant, coord, time);
-		var hueFromHeight = (height / 90) * 0.67;
-		var lightness = 0.3 + ((height + 50) / 200);
+		var lightness = 0.35 + ((height + 25) / 280);
+		var normalizedHeight = (height + 25) / 50;
+		var hue = A2(
+			$elm$core$Basics$max,
+			0,
+			A2($elm$core$Basics$min, 1, normalizedHeight));
 		var createPoint = function (c) {
 			return A3(
 				$author$project$Main$Point3D,
@@ -5888,16 +5900,13 @@ var $author$project$Main$gridElement = F3(
 		var points = _List_fromArray(
 			[
 				createPoint(
-				A2($author$project$Main$GridCoordinate, coord.d - 8, coord.e - 8)),
+				A2($author$project$Main$GridCoordinate, coord.d - 7, coord.e - 7)),
 				createPoint(
-				A2($author$project$Main$GridCoordinate, coord.d, coord.e - 8)),
+				A2($author$project$Main$GridCoordinate, coord.d, coord.e - 7)),
 				createPoint(coord),
 				createPoint(
-				A2($author$project$Main$GridCoordinate, coord.d - 8, coord.e))
+				A2($author$project$Main$GridCoordinate, coord.d - 7, coord.e))
 			]);
-		var colorOffset = (time / 5000) - $elm$core$Basics$floor(time / 5000);
-		var baseHue = hueFromHeight + colorOffset;
-		var hue = baseHue - $elm$core$Basics$floor(baseHue);
 		var color = $avh4$elm_color$Color$toCssString(
 			A3($avh4$elm_color$Color$hsl, hue, 0.7, lightness));
 		return A2($author$project$Main$Face, points, color);
@@ -5909,8 +5918,8 @@ var $author$project$Main$grid = F2(
 			A2(
 				$elm$core$Basics$composeR,
 				$elm$core$Basics$toFloat,
-				$elm$core$Basics$mul(8)),
-			A2($elm$core$List$range, -20, 20));
+				$elm$core$Basics$mul(7)),
+			A2($elm$core$List$range, -18, 18));
 		var coordinates = A2(
 			$elm$core$List$concatMap,
 			function (x) {
@@ -5998,11 +6007,11 @@ var $author$project$Main$svgProjection = F2(
 				$elm$svg$Svg$polygon,
 				_List_fromArray(
 					[
-						$elm$svg$Svg$Attributes$stroke('white'),
-						$elm$svg$Svg$Attributes$strokeWidth('0.5'),
-						$elm$svg$Svg$Attributes$strokeOpacity('0.5'),
+						$elm$svg$Svg$Attributes$stroke('#000000'),
+						$elm$svg$Svg$Attributes$strokeWidth('0.7'),
+						$elm$svg$Svg$Attributes$strokeOpacity('0.4'),
 						$elm$svg$Svg$Attributes$fill(face.ac),
-						$elm$svg$Svg$Attributes$fillOpacity('0.5'),
+						$elm$svg$Svg$Attributes$fillOpacity('0.8'),
 						$elm$svg$Svg$Attributes$points(pointsString)
 					]),
 				_List_Nil);
@@ -6021,10 +6030,9 @@ var $author$project$Main$view = function (model) {
 			A2($elm$html$Html$Attributes$style, 'backgroundColor', '#000000'),
 			A2($elm$html$Html$Attributes$style, 'height', '100vh'),
 			A2($elm$html$Html$Attributes$style, 'width', '100vw'),
-			A2($elm$html$Html$Attributes$style, 'display', 'grid'),
-			A2($elm$html$Html$Attributes$style, 'grid-template-columns', 'repeat(auto-fit, minmax(400px, 1fr))'),
-			A2($elm$html$Html$Attributes$style, 'grid-template-rows', 'repeat(auto-fit, minmax(350px, 1fr))'),
-			A2($elm$html$Html$Attributes$style, 'gap', '0'),
+			A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+			A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
+			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
 			A2($elm$html$Html$Attributes$style, 'overflow', 'hidden')
 		]);
 	var responsiveCSS = A3(
@@ -6033,8 +6041,21 @@ var $author$project$Main$view = function (model) {
 		_List_Nil,
 		_List_fromArray(
 			[
-				$elm$html$Html$text('\n                @media (max-width: 768px) {\n                    .grid-container {\n                        grid-template-columns: 1fr !important;\n                        grid-template-rows: repeat(4, minmax(300px, 1fr)) !important;\n                    }\n                }\n                @media (min-width: 769px) and (max-width: 1024px) {\n                    .grid-container {\n                        grid-template-columns: 1fr 1fr !important;\n                        grid-template-rows: 1fr 1fr !important;\n                    }\n                }\n                @media (min-width: 1025px) {\n                    .grid-container {\n                        grid-template-columns: 1fr 1fr !important;\n                        grid-template-rows: 1fr 1fr !important;\n                    }\n                }\n                ')
+				$elm$html$Html$text('\n                @media (max-width: 768px) {\n                    .grid-layout {\n                        grid-template-columns: 1fr !important;\n                        grid-template-rows: 1fr 1fr 1fr 1fr !important;\n                        gap: 1px !important;\n                        padding: 1px !important;\n                        height: 100vh !important;\n                        max-width: 100vw !important;\n                        aspect-ratio: unset !important;\n                    }\n                }\n                @media (min-width: 769px) {\n                    .grid-layout {\n                        grid-template-columns: 1fr 1fr !important;\n                        grid-template-rows: 1fr 1fr !important;\n                        gap: 2px !important;\n                        padding: 2px !important;\n                    }\n                }\n                ')
 			]));
+	var gridStyles = _List_fromArray(
+		[
+			A2($elm$html$Html$Attributes$style, 'display', 'grid'),
+			A2($elm$html$Html$Attributes$style, 'grid-template-columns', '1fr 1fr'),
+			A2($elm$html$Html$Attributes$style, 'grid-template-rows', '1fr 1fr'),
+			A2($elm$html$Html$Attributes$style, 'gap', '2px'),
+			A2($elm$html$Html$Attributes$style, 'padding', '2px'),
+			A2($elm$html$Html$Attributes$style, 'box-sizing', 'border-box'),
+			A2($elm$html$Html$Attributes$style, 'max-width', '1200px'),
+			A2($elm$html$Html$Attributes$style, 'width', '100%'),
+			A2($elm$html$Html$Attributes$style, 'height', 'min(100vh, 800px)'),
+			A2($elm$html$Html$Attributes$style, 'aspect-ratio', '1.5')
+		]);
 	var gridContainerStyle = _List_fromArray(
 		[
 			A2($elm$html$Html$Attributes$style, 'width', '100%'),
@@ -6042,7 +6063,7 @@ var $author$project$Main$view = function (model) {
 			A2($elm$html$Html$Attributes$style, 'display', 'flex'),
 			A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
 			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-			A2($elm$html$Html$Attributes$style, 'min-height', '350px')
+			A2($elm$html$Html$Attributes$style, 'overflow', 'hidden')
 		]);
 	var svgs = _List_fromArray(
 		[
@@ -6104,21 +6125,23 @@ var $author$project$Main$view = function (model) {
 		]);
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_Utils_ap(
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Events$on, 'mousemove', $author$project$Main$mouseDecoder),
+					A2($elm$html$Html$Events$on, 'pointermove', $author$project$Main$mouseDecoder),
+					A2($elm$html$Html$Attributes$style, 'touch-action', 'none')
+				]),
+			styles),
 		_List_fromArray(
 			[
 				responsiveCSS,
 				A2(
 				$elm$html$Html$div,
-				_Utils_ap(
-					_List_fromArray(
-						[
-							A2($elm$html$Html$Events$on, 'mousemove', $author$project$Main$mouseDecoder),
-							A2($elm$html$Html$Events$on, 'pointermove', $author$project$Main$mouseDecoder),
-							A2($elm$html$Html$Attributes$style, 'touch-action', 'none'),
-							$elm$html$Html$Attributes$class('grid-container')
-						]),
-					styles),
+				A2(
+					$elm$core$List$cons,
+					$elm$html$Html$Attributes$class('grid-layout'),
+					gridStyles),
 				svgs)
 			]));
 };
